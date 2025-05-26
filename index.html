@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoChat - Welcome</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 48px 32px 36px 32px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1a1b34;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 18px;
+        }
+        .hero-details {
+            text-align: left;
+            margin: 0 auto 22px auto;
+            color: #444;
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 410px;
+        }
+        .hero-btn {
+            width: 100%;
+            padding: 12px 0;
+            margin: 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background: #1a1b34;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+        .hero-btn:hover {
+            background: #333;
+        }
+        .footer {
+            margin-top: 24px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-container">
+        <div class="logo">YoChat</div>
+        <div class="subtitle">Simple. Fast. Reliable chat for everyone.</div>
+        <div class="hero-details">
+            <p><strong>YoChat</strong> is a modern, user-friendly chat application designed for seamless and secure communication. Whether you're connecting with friends, family, or colleagues, YoChat provides a clean and intuitive interface that makes messaging effortless.</p>
+            <p>Our platform is built with performance and privacy in mind. All messages are delivered in real-time, and your conversations are protected with robust security measures. YoChat supports both one-on-one and group chats, making it perfect for both personal and professional use.</p>
+            <p>Key features include:
+                <ul style="text-align:left; margin: 10px 0 0 20px;">
+                    <li>Instant messaging with real-time updates</li>
+                    <li>Easy-to-use, distraction-free interface</li>
+                    <li>Secure user authentication and data protection</li>
+                    <li>Group and private chat lobbies</li>
+                    <li>Responsive design for all devices</li>
+                </ul>
+            </p>
+            <p>Get started today and experience a new standard in online communication with YoChat.</p>
+        </div>
+        <button class="hero-btn" onclick="window.location.href='login.php'">Login</button>
+        <button class="hero-btn" onclick="window.location.href='signup.php'">Sign Up</button>
+        <div class="footer">&copy; 2025 YoChat</div>
+    </div>
+</body>
+</html>
