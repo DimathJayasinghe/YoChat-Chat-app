@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_COOKIE['yochat_logged_in']) || !isset($_SESSION['user_id'])) {
-    header('Location: login.html');
+    header('Location: login.php');
     exit();
 }
 require_once 'database.php';

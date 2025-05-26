@@ -20,8 +20,18 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if this is a profile photo upload only
-    if (isset($_FILES['profile_pic'])) {
+    // Remove profile picture
+    if (isset($_POST['remove_profile_pic'])) {
+        if ($profile_pic && file_exists(__DIR__ . '/' . $profile_pic)) {
+            unlink(__DIR__ . '/' . $profile_pic);
+        }
+        $stmt = $conn->prepare('UPDATE users SET profile_pic = NULL WHERE user_id = ?');
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $stmt->close();
+        $profile_pic = null;
+        $success = 'Profile picture removed! ' . $success;
+    } elseif (isset($_FILES['profile_pic'])) {
         // Handle profile picture upload
         $allowed_types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
         $file_type = $_FILES['profile_pic']['type'];
@@ -94,26 +104,110 @@ $conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - YoChat</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 32px; }
-        h2 { text-align: center; margin-bottom: 24px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 6px; color: #444; }
-        input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
-        .form-btn { width: 100%; padding: 12px 0; font-size: 1rem; font-weight: 600; color: #fff; background: #1a1b34; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: background 0.18s; }
-        .form-btn:hover { background: #333; }
-        .msg { margin-bottom: 16px; padding: 10px; border-radius: 5px; font-size: 1rem; }
-        .msg.success { background: #e0ffe0; color: #006600; }
-        .msg.error { background: #ffeaea; color: #b00020; }
-        .back-btn { display: block; margin: 24px auto 0 auto; background: #888; color: #fff; border: none; border-radius: 5px; padding: 10px 24px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
-        .back-btn:hover { background: #444; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 32px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-btn {
+            width: 100%;
+            padding: 12px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background: #1a1b34;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.18s;
+        }
+
+        .form-btn:hover {
+            background: #333;
+        }
+
+        .msg {
+            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .msg.success {
+            background: #e0ffe0;
+            color: #006600;
+        }
+
+        .msg.error {
+            background: #ffeaea;
+            color: #b00020;
+        }
+
+        .back-btn {
+            display: block;
+            margin: 24px auto 0 auto;
+            background: #888;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #444;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>My Profile</h2>
@@ -125,12 +219,17 @@ $conn->close();
         <?php endif; ?>
         <div style="text-align:center;margin-bottom:18px;">
             <img src="<?php echo $profile_pic && file_exists(__DIR__ . '/' . $profile_pic) ? $profile_pic : 'images/profiles/default.png'; ?>"
-                 alt="Profile Picture"
-                 style="width:110px;height:110px;object-fit:cover;border-radius:50%;border:2px solid #1a1b34;">
-            <form method="post" enctype="multipart/form-data" style="margin-top:10px;">
+                alt="Profile Picture"
+                style="width:110px;height:110px;object-fit:cover;border-radius:50%;border:2px solid #1a1b34;">
+            <form method="post" enctype="multipart/form-data" style="margin-top:10px;display:inline-block;">
                 <input type="file" name="profile_pic" accept="image/*" style="margin-bottom:8px;">
                 <button type="submit" class="form-btn" style="width:auto;padding:6px 18px;">Upload Photo</button>
             </form>
+            <?php if ($profile_pic): ?>
+                <form method="post" style="display:inline-block;margin-left:10px;">
+                    <button type="submit" name="remove_profile_pic" class="form-btn" style="width:auto;padding:6px 18px;background:#b00020;">Remove Photo</button>
+                </form>
+            <?php endif; ?>
         </div>
         <form method="post" autocomplete="off">
             <div class="form-group">
@@ -154,4 +253,5 @@ $conn->close();
         <a href="chat_window.php" class="back-btn">Back to Chat</a>
     </div>
 </body>
+
 </html>
