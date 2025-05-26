@@ -55,7 +55,25 @@ if (!empty($user_profile_pics)) {
 }
 
 // Determine selected chat lobby
-$selected_lobby_id = isset($_GET['chat_lobby_id']) ? intval($_GET['chat_lobby_id']) : ($open_chats[0]['chat_lobby_id'] ?? null);
+if (isset($_GET['chat_lobby_id'])) {
+    $selected_lobby_id = intval($_GET['chat_lobby_id']);
+    setcookie('yochat_last_lobby', $selected_lobby_id, time() + 86400, '/');
+} elseif (isset($_COOKIE['yochat_last_lobby'])) {
+    $selected_lobby_id = intval($_COOKIE['yochat_last_lobby']);
+    // Validate that this lobby is in $open_chats
+    $valid = false;
+    foreach ($open_chats as $chat) {
+        if ($chat['chat_lobby_id'] == $selected_lobby_id) {
+            $valid = true;
+            break;
+        }
+    }
+    if (!$valid) {
+        $selected_lobby_id = $open_chats[0]['chat_lobby_id'] ?? null;
+    }
+} else {
+    $selected_lobby_id = $open_chats[0]['chat_lobby_id'] ?? null;
+}
 $messages = [];
 if ($selected_lobby_id) {
     $sql = "SELECT m.*, u.name FROM messages m JOIN users u ON m.sender_id = u.user_id WHERE m.chat_lobby_id = ? ORDER BY m.sent_at ASC, m.message_id ASC";
@@ -139,6 +157,12 @@ if ($message_ids) {
 
         .chat_item:hover {
             background-color: #e0e0e0;
+        }
+
+        .chat_item.selected {
+            background-color: #dbe3f7;
+            border-bottom: 2px solid #3e4a89;
+            font-weight: 600;
         }
 
         #chat_window {
@@ -360,7 +384,7 @@ if ($message_ids) {
         $current_user_id = $user_id; ?>
         <ul id="open_chat_list">
             <?php foreach ($open_chats as $chat): ?>
-                <li class="chat_item" data-lobby-id="<?php echo $chat['chat_lobby_id']; ?>">
+                <li class="chat_item<?php echo ($chat['chat_lobby_id'] == $selected_lobby_id ? ' selected' : ''); ?>" data-lobby-id="<?php echo $chat['chat_lobby_id']; ?>">
                     <a href="?chat_lobby_id=<?php echo $chat['chat_lobby_id']; ?>" style="text-decoration:none;color:inherit;display:flex;align-items:center;width:100%;height:100%;gap:10px;">
                         <?php
                         $members = explode(',', $chat['members']);
@@ -376,12 +400,32 @@ if ($message_ids) {
                                 break; // Only show the first other user for 1:1, or all for group if you want
                             }
                         }
-                        // For group chats, show all other users (optional: remove break above)
                         ?>
                     </a>
                 </li>
             <?php endforeach; ?>
         </ul>
+        <script>
+        // Highlight the selected chat using the cookie if available
+        (function() {
+            function getCookie(name) {
+                let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                if (match) return decodeURIComponent(match[2]);
+                return null;
+            }
+            var lastLobby = getCookie('yochat_last_lobby');
+            if (lastLobby) {
+                var items = document.querySelectorAll('.chat_item');
+                items.forEach(function(item) {
+                    if (item.getAttribute('data-lobby-id') === lastLobby) {
+                        item.classList.add('selected');
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+        })();
+        </script>
     </div>
     <div id="chat_window">
         <h2 class="heading2" id="chat_heading">Chat</h2>
